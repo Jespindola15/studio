@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "portfolio-1",
+      "description": "Modern website mockup for a tech company.",
+      "imageUrl": "https://picsum.photos/seed/tech-1/600/450",
+      "imageHint": "website mockup"
+    },
+    {
+      "id": "portfolio-2",
+      "description": "E-commerce store for a clothing brand.",
+      "imageUrl": "https://picsum.photos/seed/fashion-2/600/450",
+      "imageHint": "fashion ecommerce"
+    },
+    {
+      "id": "portfolio-3",
+      "description": "Landing page for a new mobile application.",
+      "imageUrl": "https://picsum.photos/seed/app-3/600/450",
+      "imageHint": "app landing"
+    },
+    {
+      "id": "portfolio-4",
+      "description": "Corporate website for a financial services firm.",
+      "imageUrl": "https://picsum.photos/seed/corp-4/600/450",
+      "imageHint": "corporate site"
+    },
+    {
+      "id": "portfolio-5",
+      "description": "Portfolio website for a creative professional.",
+      "imageUrl": "https://picsum.photos/seed/creative-5/600/450",
+      "imageHint": "portfolio design"
+    },
+    {
+      "id": "portfolio-6",
+      "description": "Blog design for a travel influencer.",
+      "imageUrl": "https://picsum.photos/seed/travel-6/600/450",
+      "imageHint": "travel blog"
+    },
+    {
+      "id": "hero-laptop",
+      "description": "Laptop showing a website design.",
+      "imageUrl": "https://picsum.photos/seed/laptop-hero/1024/683",
+      "imageHint": "laptop website"
+    },
+    {
+      "id": "hero-phone",
+      "description": "Phone showing a mobile website design.",
+      "imageUrl": "https://picsum.photos/seed/phone-hero/300/600",
+      "imageHint": "phone website"
+    }
+  ]
 }
