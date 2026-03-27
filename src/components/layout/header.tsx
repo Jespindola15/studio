@@ -37,7 +37,12 @@ export default function Header() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-4">
-          <Button onClick={() => setIsOpen(true)}>Solicitar Presupuesto</Button>
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+          >
+            Solicitar Presupuesto
+          </Button>
         </div>
 
         <div className="md:hidden">

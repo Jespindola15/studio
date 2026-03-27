@@ -55,7 +55,7 @@ export default function Portfolio() {
 
           return (
             <a href="#" key={item.name} className="group block">
-              <Card className="overflow-hidden h-full transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10">
+              <Card className="overflow-hidden h-full transition-all duration-300 group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10 bg-card/50 backdrop-blur-sm group-hover:-translate-y-2">
                 <CardContent className="p-0">
                   <div className="relative overflow-hidden">
                     <Image

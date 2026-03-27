@@ -45,7 +45,7 @@ export default function Process() {
           {processSteps.map((step, index) => (
             <div
               key={step.step}
-              className={`relative flex items-start gap-6 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse md:text-right'}`}
+              className={`relative flex items-start gap-6 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse md:text-right'} transition-transform duration-300 hover:scale-105`}
             >
               <div className="hidden md:flex flex-col items-center">
                   <div className="w-px h-10 bg-transparent"></div>

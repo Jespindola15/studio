@@ -29,7 +29,7 @@ export default function Services() {
   return (
     <SectionContainer id="services" className="bg-card">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold font-headline">Soluciones Digitales a tu Medida</h2>
+        <h2 className="text-3xl md:text-4xl font-bold font-headline">Experiencias digitales diseñadas para destacar</h2>
         <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
           Desde una landing page hasta un sitio corporativo completo, tenemos la solución para vos.
         </p>
@@ -37,7 +37,7 @@ export default function Services() {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {services.map((service, index) => (
-          <Card key={index} className="bg-background/50 text-center p-6 flex flex-col items-center border border-border/50 hover:border-primary/50 transition-colors duration-300 hover:bg-background">
+          <Card key={index} className="bg-background/50 backdrop-blur-sm text-center p-6 flex flex-col items-center border border-border/50 hover:border-primary/50 transition-all duration-300 hover:bg-background hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20">
             <div className="mb-4 text-primary bg-primary/10 p-4 rounded-full">
               {service.icon}
             </div>

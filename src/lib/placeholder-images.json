@@ -38,15 +38,15 @@
     },
     {
       "id": "hero-laptop",
-      "description": "Laptop showing a website design.",
-      "imageUrl": "https://picsum.photos/seed/laptop-hero/1024/683",
-      "imageHint": "laptop website"
+      "description": "Mockup of a futuristic web interface on a modern laptop.",
+      "imageUrl": "https://picsum.photos/seed/saas-dark/1024/683",
+      "imageHint": "futuristic interface"
     },
     {
       "id": "hero-phone",
-      "description": "Phone showing a mobile website design.",
-      "imageUrl": "https://picsum.photos/seed/phone-hero/300/600",
-      "imageHint": "phone website"
+      "description": "Mobile view of a modern SaaS application.",
+      "imageUrl": "https://picsum.photos/seed/saas-mobile/300/600",
+      "imageHint": "SaaS mobile"
     }
   ]
 }

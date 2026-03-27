@@ -42,7 +42,7 @@ export default function ValueProp() {
 
       <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {benefits.map((benefit, index) => (
-          <Card key={index} className="bg-card border-border/50 p-6">
+          <Card key={index} className="bg-card/50 backdrop-blur-sm border-border/50 p-6 transition-all duration-300 hover:-translate-y-2 hover:shadow-lg hover:shadow-accent/10">
             <CardContent className="p-0 flex items-start gap-4">
               <div className="text-accent">{benefit.icon}</div>
               <div>

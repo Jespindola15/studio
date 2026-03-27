@@ -8,6 +8,7 @@ import Process from '@/components/sections/process';
 import About from '@/components/sections/about';
 import Cta from '@/components/sections/cta';
 import { QuoteRequestDialog } from '@/components/quote-request-dialog';
+import IdealFor from '@/components/sections/ideal-for';
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
           <Hero />
           <ValueProp />
           <Services />
+          <IdealFor />
           <Portfolio />
           <Process />
           <About />

@@ -7,7 +7,7 @@ export default function About() {
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="relative">
           <div className="aspect-square rounded-full bg-gradient-to-tr from-primary/20 to-accent/20 absolute -inset-8 blur-3xl" />
-          <div className="relative p-8 bg-background/50 backdrop-blur-lg rounded-2xl border border-border">
+          <div className="relative p-8 bg-background/50 backdrop-blur-lg rounded-2xl border border-border hover:border-primary/30 transition-colors">
               <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4">Sobre Mediup</h2>
               <p className="text-muted-foreground text-lg mb-6">
                 Mediup es una agencia digital enfocada en crear páginas web modernas, minimalistas y efectivas.
