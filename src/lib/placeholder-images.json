@@ -1,52 +1,40 @@
 {
   "placeholderImages": [
     {
-      "id": "portfolio-1",
-      "description": "Modern website mockup for a tech company.",
-      "imageUrl": "https://picsum.photos/seed/tech-1/600/450",
-      "imageHint": "website mockup"
+      "id": "hero-car",
+      "description": "A modern sports car with dramatic lighting.",
+      "imageUrl": "https://picsum.photos/seed/sportscar-1/1280/720",
+      "imageHint": "sports car"
     },
     {
-      "id": "portfolio-2",
-      "description": "E-commerce store for a clothing brand.",
-      "imageUrl": "https://picsum.photos/seed/fashion-2/600/450",
-      "imageHint": "fashion ecommerce"
+      "id": "featured-car-1",
+      "description": "A white modern SUV.",
+      "imageUrl": "https://picsum.photos/seed/suv-1/600/400",
+      "imageHint": "white suv"
     },
     {
-      "id": "portfolio-3",
-      "description": "Landing page for a new mobile application.",
-      "imageUrl": "https://picsum.photos/seed/app-3/600/450",
-      "imageHint": "app landing"
+      "id": "featured-car-2",
+      "description": "A red compact city car.",
+      "imageUrl": "https://picsum.photos/seed/citycar-2/600/400",
+      "imageHint": "red car"
     },
     {
-      "id": "portfolio-4",
-      "description": "Corporate website for a financial services firm.",
-      "imageUrl": "https://picsum.photos/seed/corp-4/600/450",
-      "imageHint": "corporate site"
+      "id": "featured-car-3",
+      "description": "A blue luxury sedan.",
+      "imageUrl": "https://picsum.photos/seed/sedan-3/600/400",
+      "imageHint": "luxury sedan"
     },
     {
-      "id": "portfolio-5",
-      "description": "Portfolio website for a creative professional.",
-      "imageUrl": "https://picsum.photos/seed/creative-5/600/450",
-      "imageHint": "portfolio design"
+      "id": "featured-car-4",
+      "description": "A black pickup truck.",
+      "imageUrl": "https://picsum.photos/seed/truck-4/600/400",
+      "imageHint": "black truck"
     },
     {
-      "id": "portfolio-6",
-      "description": "Blog design for a travel influencer.",
-      "imageUrl": "https://picsum.photos/seed/travel-6/600/450",
-      "imageHint": "travel blog"
-    },
-    {
-      "id": "hero-laptop",
-      "description": "Mockup of a futuristic web interface on a modern laptop.",
-      "imageUrl": "https://picsum.photos/seed/saas-dark/1024/683",
-      "imageHint": "futuristic interface"
-    },
-    {
-      "id": "hero-phone",
-      "description": "Mobile view of a modern SaaS application.",
-      "imageUrl": "https://picsum.photos/seed/saas-mobile/300/600",
-      "imageHint": "SaaS mobile"
+      "id": "dealership-interior",
+      "description": "Interior of a modern car dealership.",
+      "imageUrl": "https://picsum.photos/seed/dealership-1/600/450",
+      "imageHint": "car dealership"
     }
   ]
 }

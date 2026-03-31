@@ -2,27 +2,23 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
-import { useDialog } from '@/context/dialog-context';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const navLinks = [
-  { href: '#services', label: 'Servicios' },
-  { href: '#portfolio', label: 'Portfolio' },
-  { href: '#process', label: 'Proceso' },
-  { href: '#about', label: 'Nosotros' },
+  { href: '/catalogo', label: 'Catálogo' },
+  { href: '/quienes-somos', label: 'Quiénes Somos' },
 ];
 
 export default function Header() {
-  const { setIsOpen } = useDialog();
   const [isSheetOpen, setSheetOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <Link href="#home">
+        <Link href="/">
           <Logo />
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -37,11 +33,8 @@ export default function Header() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-4">
-          <Button
-            onClick={() => setIsOpen(true)}
-            className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-shadow"
-          >
-            Solicitar Presupuesto
+          <Button asChild>
+             <Link href="/contacto">Contacto</Link>
           </Button>
         </div>
 
@@ -50,13 +43,13 @@ export default function Header() {
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu />
-                <span className="sr-only">Open Menu</span>
+                <span className="sr-only">Abrir Menú</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs bg-background p-6">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
-                  <Link href="#home" onClick={() => setSheetOpen(false)}>
+                  <Link href="/" onClick={() => setSheetOpen(false)}>
                     <Logo />
                   </Link>
                 </div>
@@ -73,9 +66,9 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-auto">
-                   <Button onClick={() => { setIsOpen(true); setSheetOpen(false);}} className="w-full">
-                    Solicitar Presupuesto
-                  </Button>
+                   <Button asChild className="w-full">
+                      <Link href="/contacto" onClick={() => setSheetOpen(false)}>Contacto</Link>
+                   </Button>
                 </div>
               </div>
             </SheetContent>
