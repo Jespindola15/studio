@@ -1,0 +1,99 @@
+/**
+ * This ruleset enforces a Role-Based Access Control (RBAC) model for a website portfolio.
+ *
+ * Core Philosophy:
+ * The security model is designed to provide public read-access to published content while
+ * strictly limiting all write operations (create, update, delete) to authorized administrators.
+ * This ensures that the public-facing portfolio is robust and secure, while giving content
+ * managers the flexibility they need.
+ *
+ * Data Structure:
+ * - /portfolioProjects/{projectId}: A top-level collection containing all portfolio items,
+ *   both published drafts and publicly visible projects.
+ * - /roles_admin/{adminId}: A separate, non-public collection that acts as a lookup table
+ *   for administrator roles. The existence of a document here grants a user admin privileges.
+ *
+ * Key Security Decisions:
+ * - Admin Rights via DBAC: Administrator status is determined by checking for the existence
+ *   of the user's UID in the `/roles_admin` collection. This is a highly performant and secure
+ *   pattern for Database Access Control (DBAC).
+ * - Public Access via Denormalized Flag: Public readability of a project is controlled by a
+ *   denormalized `isPublished` boolean field directly on the project document. This allows
+ *   for simple, fast security rules without needing costly `get` calls to other documents.
+ * - No Public Writes: All write access to any data is denied to non-administrative users.
+ * - Admin Role Management: The `/roles_admin` collection is not writable by clients. Roles
+ *   must be assigned out-of-band (e.g., via the Firebase Console or a trusted server process)
+ *   to prevent privilege escalation.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for readable, maintainable rules.
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user is the owner of a document.
+     * @param userId The UID to check against the authenticated user's UID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the requesting user has administrator privileges.
+     * Admin status is granted if a document with the user's UID exists in the /roles_admin collection.
+     * This is a fast, non-billable check.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * Verifies that a document already exists.
+     * Crucial for robust update and delete operations.
+     */
+    function documentExists() {
+      return resource != null;
+    }
+
+    /**
+     * @description Rules for the collection of portfolio projects.
+     * @path /portfolioProjects/{projectId}
+     * @allow (get) Any user, signed in or not, can read a project if it is marked as published.
+     * @allow (create, update, delete) An administrator can create, modify, or delete any project.
+     * @deny (get) A public user attempts to read a project where `isPublished` is false.
+     * @deny (update) A regular signed-in user attempts to modify a project.
+     * @principle Implements a "Public Read with Admin-Only Writes" pattern.
+     */
+    match /portfolioProjects/{projectId} {
+      allow get: if (documentExists() && resource.data.isPublished == true) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() && documentExists();
+      allow delete: if isAdmin() && documentExists();
+    }
+
+    /**
+     * @description Rules for the admin role lookup collection.
+     * @path /roles_admin/{adminId}
+     * @allow (get) An authenticated user can check for their own administrator status.
+     * @deny (list) No user can list all administrators.
+     * @deny (create, update, delete) No user can grant or revoke admin privileges from the client.
+     * @principle Enforces a "read-only" model for client-side role verification, preventing privilege escalation.
+     */
+    match /roles_admin/{adminId} {
+      allow get: if isOwner(adminId);
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
