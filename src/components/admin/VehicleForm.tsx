@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Vehicle } from '@/app/admin/vehiculos/page';
+import { Vehicle } from '@/app/administrador/vehiculos/page';
 
 interface VehicleFormProps {
   onSubmit: (values: VehicleFormValues) => Promise<void>;

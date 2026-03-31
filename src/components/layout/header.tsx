@@ -18,7 +18,7 @@ export default function Header() {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const pathname = usePathname();
 
-  if (pathname?.startsWith('/admin')) {
+  if (pathname?.startsWith('/administrador')) {
     return null;
   }
 
