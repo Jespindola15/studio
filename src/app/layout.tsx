@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'AutoHaus | Tu Próximo Vehículo',
@@ -25,14 +26,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <div className="flex flex-col min-h-dvh">
-          <Header />
-          <main className="flex-1">
+        <FirebaseClientProvider>
+          <div className="flex flex-col min-h-dvh">
             {children}
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
+          </div>
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

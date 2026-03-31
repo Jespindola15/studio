@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Car, Check, Handshake, ShieldCheck, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Header from '@/components/layout/header';
+import Footer from '@/components/layout/footer';
 
 
 // I'll build out the full page structure here. I can extract components later.
@@ -227,10 +229,14 @@ function TrustSection() {
 export default function Home() {
   return (
     <>
-      <Hero />
-      <Benefits />
-      <FeaturedVehicles />
-      <TrustSection />
+      <Header />
+      <main className="flex-1">
+        <Hero />
+        <Benefits />
+        <FeaturedVehicles />
+        <TrustSection />
+      </main>
+      <Footer />
     </>
   );
 }

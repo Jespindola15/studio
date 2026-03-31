@@ -1,74 +1,108 @@
 {
   "entities": {
-    "PortfolioProject": {
+    "Vehicle": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PortfolioProject",
+      "title": "Vehicle",
       "type": "object",
-      "description": "Represents a project completed by the Mediup agency for a client, showcased in the portfolio section of the website. Administrators can create, modify, and delete these project entries.",
+      "description": "Represents a vehicle in the dealership's inventory.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the PortfolioProject entity."
+          "description": "Unique identifier for the Vehicle entity."
         },
-        "title": {
+        "marca": {
           "type": "string",
-          "description": "The name or title of the portfolio project, e.g., 'Sitio Web para Concesionaria Automotriz'."
+          "description": "The brand of the vehicle, e.g., 'Audi'."
         },
-        "description": {
+        "modelo": {
           "type": "string",
-          "description": "A detailed description of the project, outlining the client's problem, Mediup's solution, and the outcomes."
+          "description": "The model of the vehicle, e.g., 'Q5'."
         },
-        "category": {
+        "ano": {
+          "type": "number",
+          "description": "The manufacturing year of the vehicle."
+        },
+        "precio": {
+          "type": "number",
+          "description": "The price of the vehicle. Optional."
+        },
+        "kilometraje": {
+          "type": "number",
+          "description": "The mileage of the vehicle in kilometers."
+        },
+        "combustible": {
           "type": "string",
-          "description": "The classification or type of the project, such as 'Diseño Web Corporativo', 'Landing Page', 'E-commerce', or 'Branding Visual'."
+          "description": "The type of fuel the vehicle uses.",
+          "enum": ["Nafta", "Diesel", "Electrico", "Hibrido"]
         },
-        "previewImageUrl": {
+        "transmision": {
           "type": "string",
-          "description": "The URL to the main image or visual representation used as a preview for the project in the portfolio gallery.",
-          "format": "uri"
+          "description": "The transmission type of the vehicle.",
+          "enum": ["Manual", "Automatica"]
         },
-        "galleryImageUrls": {
-          "type": "array",
-          "description": "An array of URLs for additional images that provide more visual details or context for the project.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "clientName": {
+        "tipoVehiculo": {
           "type": "string",
-          "description": "The name of the client or company for whom this project was developed."
+          "description": "The type of the vehicle.",
+          "enum": ["Auto", "Camioneta", "SUV", "Utilitario"]
         },
-        "projectUrl": {
+        "descripcion": {
           "type": "string",
-          "description": "Optional URL to the live version of the completed project, if applicable.",
-          "format": "uri"
+          "description": "A detailed description of the vehicle."
         },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the project entry was first created in the system.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp indicating when the project entry was last modified.",
-          "format": "date-time"
-        },
-        "isPublished": {
+        "destacado": {
           "type": "boolean",
-          "description": "A flag indicating whether the portfolio project is currently visible on the public website."
+          "description": "Flag to feature the vehicle on the homepage."
+        },
+        "vendido": {
+          "type": "boolean",
+          "description": "Flag to mark the vehicle as sold."
+        },
+        "fechaCreacion": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the vehicle was added."
+        },
+        "imagenPrincipalUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Main image URL for the vehicle."
+        },
+        "galeriaImagenesUrls": {
+            "type": "array",
+            "description": "Array of image URLs for the vehicle's gallery.",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
         }
       },
       "required": [
         "id",
-        "title",
-        "description",
-        "category",
-        "previewImageUrl",
-        "clientName",
-        "createdAt",
-        "updatedAt",
-        "isPublished"
+        "marca",
+        "modelo",
+        "ano",
+        "kilometraje",
+        "combustible",
+        "transmision",
+        "tipoVehiculo",
+        "descripcion",
+        "destacado",
+        "vendido",
+        "fechaCreacion",
+        "imagenPrincipalUrl"
       ]
+    },
+    "User": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "User",
+        "type": "object",
+        "description": "Represents a user in the system.",
+        "properties": {
+            "id": {
+                "type": "string"
+            }
+        },
+        "required": ["id"]
     }
   },
   "auth": {
@@ -80,17 +114,17 @@
   "firestore": {
     "structure": [
       {
-        "path": "/portfolioProjects/{projectId}",
+        "path": "/vehicles/{vehicleId}",
         "definition": {
-          "entityName": "PortfolioProject",
+          "entityName": "Vehicle",
           "schema": {
-            "$ref": "#/backend/entities/PortfolioProject"
+            "$ref": "#/backend/entities/Vehicle"
           },
-          "description": "Stores all portfolio projects for the Mediup agency, including both published and draft entries. Includes denormalized 'isPublished' field for authorization independence of public reads. Requires existence in '/roles_admin/{adminId}' for write access.",
+          "description": "Stores all vehicles for the dealership.",
           "params": [
             {
-              "name": "projectId",
-              "description": "The unique identifier for a specific portfolio project."
+              "name": "vehicleId",
+              "description": "The unique identifier for a specific vehicle."
             }
           ]
         }
@@ -102,7 +136,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "A collection where the existence of a document signifies that the corresponding user ID (adminId) has administrator privileges. Used for Database Access Control (DBAC) to enable authorization independence.",
+          "description": "A collection where the existence of a document signifies that the corresponding user ID (adminId) has administrator privileges.",
           "params": [
             {
               "name": "adminId",
@@ -111,7 +145,6 @@
           ]
         }
       }
-    ],
-    "reasoning": "This Firestore structure is designed to support the Mediup Ascent website, particularly the Portfolio Gallery feature and its administration, while adhering to the core design principles of Authorization Independence, Clarity of Intent, DBAC, QAPs, and Invariants.\n\n**1. Portfolio Projects (`/portfolioProjects/{projectId}`):**\nAll `PortfolioProject` entities, regardless of their publication status, will reside in a single top-level collection: `/portfolioProjects/{projectId}`. Each document will contain the full `PortfolioProject` schema, including the `isPublished` boolean field, `createdAt`, and `updatedAt` timestamps.\n\n*   **Authorization Independence:** The key to authorization independence for `PortfolioProject` documents lies in two aspects:\n    *   **Admin Access:** Administrative privileges are determined by the existence of a document in the separate `/roles_admin/{adminId}` collection. This means that authorization rules for administrators will use `exists(/roles_admin/$(request.auth.uid))`, avoiding any `get()` operations on parent documents or the `portfolioProjects` documents themselves to determine admin status. This enables atomic write operations for admins without hierarchical dependencies.\n    *   **Public Access:** The `isPublished` field is denormalized directly within each `PortfolioProject` document. This allows security rules to evaluate public readability (`resource.data.isPublished == true`) solely based on the document being accessed, without requiring `get()` calls to other documents. This is crucial for performance and simplifying rule evaluation.\n\n*   **QAPs (Rules are not Filters):**\n    *   **Administrator Access:** Administrators have full CRUD access to all documents within `/portfolioProjects`. This means an administrator can perform `list` operations (queries) on this collection and retrieve all projects (published and drafts) without needing to add extra client-side `where` clauses to satisfy security rules. The rules will simply validate their admin status, upholding the QAP for admin users.\n    *   **Public Read Access:** For public users, access is restricted to `PortfolioProject` documents where `isPublished` is `true`. While public users will need to include a `where('isPublished', '==', true)` clause in their client-side queries to fetch published projects, this is considered an acceptable interpretation of the QAP. The client-side query explicitly states the intent (only published projects), and the security rule then validates that intent. The rule does not *filter out* publicly available data that the client *intended* to access; rather, it enforces that only data marked as public can be accessed by public users, preventing access to drafts. This avoids the data duplication and synchronization complexity that would arise from maintaining separate `/public_portfolioProjects` and `/admin_portfolioProjects` collections.\n\n**2. Administrator Roles (`/roles_admin/{adminId}`):**\nThis collection serves as the central point for Database Access Control (DBAC) for administrative privileges. The mere existence of a document at `/roles_admin/{userId}` signifies that `userId` is an administrator.\n\n*   **Authorization Independence:** This collection embodies the principle by separating role management from data management. Authorization for admin actions on `PortfolioProject` documents (or any other admin-restricted resource) is determined by checking the existence of `request.auth.uid` within this collection, providing an atomic and independent authorization check.\n*   **QAPs (Rules are not Filters):** Admins can verify their own admin status by attempting to read their document in this collection. Rules can ensure only authenticated users can check for their own role, adhering to QAPs for role verification.\n\n**Structural Segregation:** While the `isPublished` field exists, a strict segregation into `/portfolioProjects_published` and `/portfolioProjects_drafts` collections was considered. However, for a single, admin-managed entity with a binary public/private state (`isPublished`), maintaining one collection (`/portfolioProjects`) simplifies admin management (single place to manage all projects) and avoids data duplication and synchronization challenges. The distinction in access is then handled by the `isPublished` field within the document and the explicit client-side filter for public reads, which is a practical and widely adopted approach for this specific scenario.\n\n**Data Clarity and Predictability:** The use of `isPublished` as a dedicated status field, along with `createdAt` and `updatedAt` timestamps, ensures explicit state modeling and data predictability, making rules easier to write and debug."
+    ]
   }
 }
