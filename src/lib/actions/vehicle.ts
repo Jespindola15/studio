@@ -64,18 +64,19 @@ export async function createVehicle(db: Firestore, storage: Storage, vehicleData
         fechaCreacion: serverTimestamp(),
     };
     
-    return setDoc(newVehicleRef, dataToCreate)
-        .catch(error => {
-            errorEmitter.emit(
-              'permission-error',
-              new FirestorePermissionError({
-                path: newVehicleRef.path,
-                operation: 'create',
-                requestResourceData: dataToCreate,
-              })
-            );
-            throw error;
-        });
+    try {
+        await setDoc(newVehicleRef, dataToCreate);
+    } catch (error) {
+        errorEmitter.emit(
+          'permission-error',
+          new FirestorePermissionError({
+            path: newVehicleRef.path,
+            operation: 'create',
+            requestResourceData: dataToCreate,
+          })
+        );
+        throw error;
+    }
 }
 
 export async function updateVehicle(db: Firestore, storage: Storage, existingVehicle: Vehicle, vehicleData: VehicleFormValues) {
@@ -99,18 +100,19 @@ export async function updateVehicle(db: Firestore, storage: Storage, existingVeh
         galeriaImagenesUrls,
     };
 
-    return updateDoc(docRef, dataToUpdate)
-        .catch(error => {
-            errorEmitter.emit(
-              'permission-error',
-              new FirestorePermissionError({
-                path: docRef.path,
-                operation: 'update',
-                requestResourceData: dataToUpdate,
-              })
-            );
-            throw error;
-        });
+    try {
+        await updateDoc(docRef, dataToUpdate);
+    } catch (error) {
+        errorEmitter.emit(
+          'permission-error',
+          new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'update',
+            requestResourceData: dataToUpdate,
+          })
+        );
+        throw error;
+    }
 }
 
 export async function deleteVehicle(db: Firestore, storage: Storage, vehicle: Vehicle) {
@@ -127,15 +129,16 @@ export async function deleteVehicle(db: Firestore, storage: Storage, vehicle: Ve
     }
 
     // Then delete the firestore document
-    return deleteDoc(docRef)
-        .catch(error => {
-            errorEmitter.emit(
-              'permission-error',
-              new FirestorePermissionError({
-                path: docRef.path,
-                operation: 'delete',
-              })
-            );
-            throw error;
-        });
+    try {
+        await deleteDoc(docRef);
+    } catch (error) {
+        errorEmitter.emit(
+          'permission-error',
+          new FirestorePermissionError({
+            path: docRef.path,
+            operation: 'delete',
+          })
+        );
+        throw error;
+    }
 }
