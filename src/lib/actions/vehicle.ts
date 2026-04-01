@@ -40,11 +40,12 @@ async function handleImageUploads(storage: Storage, vehicleId: string, values: V
 
 
 export async function createVehicle(db: Firestore, storage: Storage, vehicleData: VehicleFormValues) {
-    console.log('--- CREATE VEHICLE ACTION CALLED ---');
+    console.log('--- CREATE VEHICLE ACTION CALLED (DEBUG MODE - NO IMAGES) ---');
     const newVehicleRef = doc(collection(db, 'vehicles'));
-    const vehicleId = newVehicleRef.id;
-
-    const { imagenPrincipalUrl, galeriaImagenesUrls } = await handleImageUploads(storage, vehicleId, vehicleData);
+    
+    // --- TEMPORARY DEBUGGING ---
+    // We are temporarily disabling image uploads to isolate the problem.
+    // const { imagenPrincipalUrl, galeriaImagenesUrls } = await handleImageUploads(storage, newVehicleRef.id, vehicleData);
 
     const dataToCreate = {
         marca: vehicleData.marca,
@@ -58,19 +59,21 @@ export async function createVehicle(db: Firestore, storage: Storage, vehicleData
         descripcion: vehicleData.descripcion,
         destacado: vehicleData.destacado,
         vendido: vehicleData.vendido,
-        imagenPrincipalUrl,
-        galeriaImagenesUrls,
+        imagenPrincipalUrl: "https://placehold.co/600x400/222/fff?text=Debug", // Temporary placeholder
+        galeriaImagenesUrls: [],
         fechaCreacion: serverTimestamp(),
     };
     
     await setDoc(newVehicleRef, dataToCreate);
+    console.log(`--- VEHICLE CREATED (DEBUG MODE): ${newVehicleRef.id} ---`);
 }
 
 export async function updateVehicle(db: Firestore, storage: Storage, existingVehicle: Vehicle, vehicleData: VehicleFormValues) {
-    console.log('--- UPDATE VEHICLE ACTION CALLED ---');
+    console.log('--- UPDATE VEHICLE ACTION CALLED (DEBUG MODE - NO IMAGES) ---');
     const docRef = doc(db, 'vehicles', existingVehicle.id);
     
-    const { imagenPrincipalUrl, galeriaImagenesUrls } = await handleImageUploads(storage, existingVehicle.id, vehicleData, existingVehicle);
+    // --- TEMPORARY DEBUGGING ---
+    // const { imagenPrincipalUrl, galeriaImagenesUrls } = await handleImageUploads(storage, existingVehicle.id, vehicleData, existingVehicle);
     
     const dataToUpdate = {
         marca: vehicleData.marca,
@@ -84,26 +87,29 @@ export async function updateVehicle(db: Firestore, storage: Storage, existingVeh
         descripcion: vehicleData.descripcion,
         destacado: vehicleData.destacado,
         vendido: vehicleData.vendido,
-        imagenPrincipalUrl,
-        galeriaImagenesUrls,
+        // Keep existing images during debug
+        imagenPrincipalUrl: existingVehicle.imagenPrincipalUrl,
+        galeriaImagenesUrls: existingVehicle.galeriaImagenesUrls,
     };
 
     await updateDoc(docRef, dataToUpdate);
+    console.log(`--- VEHICLE UPDATED (DEBUG MODE): ${existingVehicle.id} ---`);
 }
 
 export async function deleteVehicle(db: Firestore, storage: Storage, vehicle: Vehicle) {
-    console.log('--- DELETE VEHICLE ACTION CALLED ---');
+    console.log('--- DELETE VEHICLE ACTION CALLED (DEBUG MODE - NO IMAGE DELETION) ---');
     const docRef = doc(db, 'vehicles', vehicle.id);
 
-    // Delete all images from storage first
-    if (vehicle.imagenPrincipalUrl) {
-        await deleteImage(storage, vehicle.imagenPrincipalUrl);
-    }
-    if (vehicle.galeriaImagenesUrls) {
-        for (const url of vehicle.galeriaImagenesUrls) {
-            await deleteImage(storage, url);
-        }
-    }
+    // --- TEMPORARY DEBUGGING ---
+    // if (vehicle.imagenPrincipalUrl) {
+    //     await deleteImage(storage, vehicle.imagenPrincipalUrl);
+    // }
+    // if (vehicle.galeriaImagenesUrls) {
+    //     for (const url of vehicle.galeriaImagenesUrls) {
+    //         await deleteImage(storage, url);
+    //     }
+    // }
 
     await deleteDoc(docRef);
+    console.log(`--- VEHICLE DELETED (DEBUG MODE): ${vehicle.id} ---`);
 }
