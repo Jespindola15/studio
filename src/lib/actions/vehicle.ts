@@ -52,7 +52,7 @@ export async function createVehicle(db: Firestore, storage: Storage, vehicleData
         modelo: vehicleData.modelo,
         ano: vehicleData.ano,
         kilometraje: vehicleData.kilometraje,
-        precio: vehicleData.precio || null,
+        precio: vehicleData.precio === '' || vehicleData.precio === 0 ? null : vehicleData.precio,
         combustible: vehicleData.combustible,
         transmision: vehicleData.transmision,
         tipoVehiculo: vehicleData.tipoVehiculo,
