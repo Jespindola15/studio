@@ -1,22 +1,16 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isAdmin() {
-      // An admin is a user who is signed in and has a corresponding document in the 'roles_admin' collection.
-      return request.auth != null && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-    }
-
-    // Vehicle collection rules
+    // permite leer vehículos sin login
     match /vehicles/{vehicleId} {
-      // Allow ANYONE to read vehicle data (get individual documents and list the collection).
-      // This is necessary for the public-facing homepage and catalog.
       allow read: if true;
 
-      // Allow ONLY admins to create, update, or delete vehicles.
-      allow write: if isAdmin();
+      // solo usuarios logueados pueden crear, editar o borrar
+      allow create, update, delete: if request.auth != null;
     }
-
+    
     // Admin roles collection rules
     match /roles_admin/{adminId} {
       // A user can read or create their own admin role document.
@@ -26,5 +20,6 @@ service cloud.firestore {
       // Explicitly deny listing, updating, or deleting roles from the client.
       allow list, update, delete: if false;
     }
+
   }
 }
