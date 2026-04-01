@@ -167,7 +167,7 @@ export function VehicleForm({ onSubmit, vehicle, onClose }: VehicleFormProps) {
                         <FormControl>
                             <SelectTrigger>
                             <SelectValue placeholder="Seleccionar..." />
-                            </Trigger>
+                            </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                             <SelectItem value="Manual">Manual</SelectItem>
@@ -188,7 +188,7 @@ export function VehicleForm({ onSubmit, vehicle, onClose }: VehicleFormProps) {
                         <FormControl>
                             <SelectTrigger>
                             <SelectValue placeholder="Seleccionar..." />
-                            </Trigger>
+                            </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                             <SelectItem value="Auto">Auto</SelectItem>
