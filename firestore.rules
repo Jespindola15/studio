@@ -12,7 +12,7 @@ service cloud.firestore {
 
     // Allow public read access to all vehicle data
     match /vehicles/{vehicleId} {
-      allow read: if true;
+      allow get, list: if true;
       allow write: if isAdmin(); // Only admins can create, update, or delete
     }
 
