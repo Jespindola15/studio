@@ -1,26 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Car, Check, Handshake, ShieldCheck, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
-
-
-// I'll build out the full page structure here. I can extract components later.
-
-function Section({ className, children, ...props }: React.ComponentProps<'section'>) {
-  return (
-    <section className={cn("py-16 md:py-24 lg:py-32", className)} {...props}>
-      <div className="container mx-auto px-4 max-w-7xl">
-        {children}
-      </div>
-    </section>
-  );
-}
+import { Section } from '@/components/layout/Section';
+import FeaturedVehicles from '@/components/layout/FeaturedVehicles';
 
 function Hero() {
   const heroImage = PlaceHolderImages.find(img => img.id === 'hero-car');
@@ -101,71 +87,6 @@ function Benefits() {
       </div>
     </Section>
   );
-}
-
-const featuredVehicles = [
-  { id: 1, imageId: 'featured-car-1', brand: 'Audi', model: 'Q5', year: 2022, mileage: '15.000 km', price: 'U$S 75.000', tags: ['Nuevo Ingreso', 'Destacado'] },
-  { id: 2, imageId: 'featured-car-2', brand: 'Peugeot', model: '208', year: 2023, mileage: '5.000 km', price: 'U$S 28.000', tags: ['Destacado'] },
-  { id: 3, imageId: 'featured-car-3', brand: 'BMW', model: 'Serie 3', year: 2021, mileage: '30.000 km', price: 'U$S 60.000', tags: [] },
-  { id: 4, imageId: 'featured-car-4', brand: 'Ford', model: 'Ranger', year: 2022, mileage: '45.000 km', price: 'U$S 55.000', tags: ['Reservado'] },
-];
-
-function FeaturedVehicles() {
-  return (
-    <Section className="bg-card">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold font-headline">Vehículos Destacados</h2>
-        <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Una selección de nuestros mejores vehículos disponibles.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {featuredVehicles.map((vehicle) => {
-          const image = PlaceHolderImages.find(img => img.id === vehicle.imageId);
-          return (
-            <Card key={vehicle.id} className="overflow-hidden group transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 bg-background/50 hover:-translate-y-1">
-              <CardContent className="p-0">
-                <div className="relative">
-                  {image &&
-                    <Image
-                      src={image.imageUrl}
-                      alt={`${vehicle.brand} ${vehicle.model}`}
-                      data-ai-hint={image.imageHint}
-                      width={600}
-                      height={400}
-                      className="object-cover w-full aspect-video transition-transform duration-500 group-hover:scale-105"
-                    />
-                  }
-                  <div className="absolute top-3 right-3 flex flex-col gap-2">
-                    {vehicle.tags.map(tag => (
-                      <Badge key={tag} variant={tag === 'Reservado' ? 'destructive' : 'secondary'}>{tag}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold font-headline">{vehicle.brand} {vehicle.model}</h3>
-                  <div className="text-sm text-muted-foreground flex justify-between mt-1">
-                    <span>{vehicle.year}</span>
-                    <span>{vehicle.mileage}</span>
-                  </div>
-                  <p className="text-xl font-semibold mt-2 text-primary">{vehicle.price}</p>
-                  <Button variant="outline" className="w-full mt-4" asChild>
-                    <Link href={`/catalogo/${vehicle.id}`}>Ver Detalles</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-       <div className="text-center mt-12">
-          <Button size="lg" variant="outline" asChild>
-            <Link href="/catalogo">Ver todo el catálogo</Link>
-          </Button>
-       </div>
-    </Section>
-  )
 }
 
 function TrustSection() {

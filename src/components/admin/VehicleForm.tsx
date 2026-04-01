@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -12,9 +12,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Vehicle } from '@/app/administrador/vehiculos/page';
 import { Upload, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import type { Vehicle } from '@/lib/types';
 
 interface VehicleFormProps {
   onSubmit: (values: VehicleFormValues) => Promise<void>;
@@ -78,7 +77,7 @@ export function VehicleForm({ onSubmit, vehicle, onClose }: VehicleFormProps) {
   useEffect(() => {
     if (galleryImageFiles && galleryImageFiles.length > 0) {
       const newPreviews = Array.from(galleryImageFiles).map(file => URL.createObjectURL(file as File));
-      setGalleryPreviews(prev => [...prev.filter(p => p.startsWith('https')), ...newPreviews]);
+      setGalleryPreviews(prev => [...prev.filter(p => p.startsWith('https://')), ...newPreviews]);
       return () => newPreviews.forEach(url => URL.revokeObjectURL(url));
     }
   }, [galleryImageFiles]);

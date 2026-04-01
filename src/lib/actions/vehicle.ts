@@ -1,11 +1,11 @@
 'use client';
-import { addDoc, collection, deleteDoc, doc, updateDoc, Firestore, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, updateDoc, Firestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Storage } from 'firebase/storage';
 import { VehicleFormValues } from '@/lib/validators/vehicle';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { uploadImage, deleteImage } from './storage';
-import { Vehicle } from '@/app/administrador/vehiculos/page';
+import type { Vehicle } from '@/lib/types';
 
 async function handleImageUploads(storage: Storage, vehicleId: string, values: VehicleFormValues, existingVehicle?: Vehicle | null) {
     let imagenPrincipalUrl = existingVehicle?.imagenPrincipalUrl || '';

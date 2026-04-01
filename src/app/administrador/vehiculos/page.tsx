@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useStorage } from '@/firebase';
-import { collection, DocumentData, orderBy, query, Timestamp } from 'firebase/firestore';
+import { collection, orderBy, query, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -35,24 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { createVehicle, deleteVehicle, updateVehicle } from '@/lib/actions/vehicle';
 import { VehicleForm, VehicleFormValues } from '@/components/admin/VehicleForm';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-
-export interface Vehicle {
-  id: string;
-  marca: string;
-  modelo: string;
-  ano: number;
-  precio: number | null;
-  kilometraje: number;
-  combustible: 'Nafta' | 'Diesel' | 'Electrico' | 'Hibrido';
-  transmision: 'Manual' | 'Automatica';
-  tipoVehiculo: 'Auto' | 'Camioneta' | 'SUV' | 'Utilitario';
-  descripcion: string;
-  destacado: boolean;
-  vendido: boolean;
-  fechaCreacion: Timestamp;
-  imagenPrincipalUrl?: string;
-  galeriaImagenesUrls?: string[];
-}
+import type { Vehicle } from '@/lib/types';
 
 export default function VehiculosPage() {
   const db = useFirestore();
