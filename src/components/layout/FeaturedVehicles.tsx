@@ -2,14 +2,15 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, limit, orderBy } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+import { collection, query, where, limit, orderBy, getDocs } from 'firebase/firestore';
 import type { Vehicle } from '@/lib/types';
 import { Section } from '@/components/layout/Section';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useEffect, useState } from 'react';
 
 function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   return (
@@ -71,19 +72,48 @@ function VehicleCardSkeleton() {
 
 export default function FeaturedVehicles() {
   const db = useFirestore();
+  const [vehicles, setVehicles] = useState<Vehicle[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const featuredVehiclesQuery = useMemoFirebase(() => {
-    if (!db) return null;
-    return query(
-      collection(db, 'vehicles'),
-      where('destacado', '==', true),
-      where('vendido', '==', false),
-      orderBy('fechaCreacion', 'desc'),
-      limit(4)
-    );
+  useEffect(() => {
+    const fetchFeaturedVehicles = async () => {
+      if (!db) {
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const featuredQuery = query(
+          collection(db, 'vehicles'),
+          where('destacado', '==', true),
+          where('vendido', '==', false),
+          orderBy('fechaCreacion', 'desc'),
+          limit(4)
+        );
+
+        const querySnapshot = await getDocs(featuredQuery);
+        const fetchedVehicles = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Vehicle[];
+        
+        setVehicles(fetchedVehicles);
+
+      } catch (e: any) {
+        console.error("Error fetching featured vehicles:", e);
+        // Set an error message but don't rethrow to avoid crashing the page.
+        setError("No se pudieron cargar los vehículos destacados. Por favor, intente más tarde.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (db) {
+        fetchFeaturedVehicles();
+    }
   }, [db]);
-
-  const { data: vehicles, isLoading } = useCollection<Omit<Vehicle, 'id'>>(featuredVehiclesQuery);
 
   return (
     <Section className="bg-card">
@@ -102,12 +132,13 @@ export default function FeaturedVehicles() {
           <VehicleCard key={vehicle.id} vehicle={vehicle} />
         ))}
       </div>
-
-      {!isLoading && vehicles?.length === 0 && (
+      
+      {!isLoading && (vehicles?.length === 0 || error) && (
         <div className="text-center col-span-full py-12">
-          <p className="text-muted-foreground">No hay vehículos destacados por el momento.</p>
+            <p className="text-muted-foreground">{error || "No hay vehículos destacados por el momento."}</p>
         </div>
       )}
+
 
        <div className="text-center mt-12">
           <Button size="lg" variant="outline" asChild>
