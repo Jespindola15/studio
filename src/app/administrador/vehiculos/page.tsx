@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useStorage } from '@/firebase';
 import { collection, DocumentData, orderBy, query, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
@@ -56,6 +56,7 @@ export interface Vehicle {
 
 export default function VehiculosPage() {
   const db = useFirestore();
+  const storage = useStorage();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -88,7 +89,7 @@ export default function VehiculosPage() {
   const handleDeleteConfirm = async () => {
     if (!vehicleToDelete) return;
     try {
-      await deleteVehicle(db, vehicleToDelete.id);
+      await deleteVehicle(db, storage, vehicleToDelete);
       toast({
         title: 'Vehículo eliminado',
         description: `El vehículo ${vehicleToDelete.marca} ${vehicleToDelete.modelo} ha sido eliminado.`,
@@ -109,13 +110,13 @@ export default function VehiculosPage() {
   const handleFormSubmit = async (values: VehicleFormValues) => {
     try {
       if (selectedVehicle) {
-        await updateVehicle(db, selectedVehicle.id, values);
+        await updateVehicle(db, storage, selectedVehicle, values);
         toast({
           title: 'Vehículo actualizado',
           description: `El vehículo ${values.marca} ${values.modelo} ha sido actualizado.`,
         });
       } else {
-        await createVehicle(db, values);
+        await createVehicle(db, storage, values);
         toast({
           title: 'Vehículo creado',
           description: `El vehículo ${values.marca} ${values.modelo} ha sido creado.`,
