@@ -3,22 +3,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // permite leer vehículos sin login
-    match /vehicles/{vehicleId} {
-      allow read: if true;
-
-      // solo usuarios logueados pueden crear, editar o borrar
-      allow create, update, delete: if request.auth != null;
-    }
-    
-    // Admin roles collection rules
-    match /roles_admin/{adminId} {
-      // A user can read or create their own admin role document.
-      // This is used for the initial setup of the first admin user.
-      allow get, create: if request.auth != null && request.auth.uid == adminId;
-
-      // Explicitly deny listing, updating, or deleting roles from the client.
-      allow list, update, delete: if false;
+    // AVISO: Reglas abiertas temporalmente para depuración.
+    // Permite que cualquier cliente lea o escriba en cualquier documento.
+    match /{document=**} {
+      allow read, write: if true;
     }
 
   }
