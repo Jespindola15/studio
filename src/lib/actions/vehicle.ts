@@ -2,8 +2,6 @@
 import { collection, deleteDoc, doc, updateDoc, Firestore, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Storage } from 'firebase/storage';
 import { VehicleFormValues } from '@/lib/validators/vehicle';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { uploadImage, deleteImage } from './storage';
 import type { Vehicle } from '@/lib/types';
 
@@ -42,6 +40,7 @@ async function handleImageUploads(storage: Storage, vehicleId: string, values: V
 
 
 export async function createVehicle(db: Firestore, storage: Storage, vehicleData: VehicleFormValues) {
+    console.log('--- CREATE VEHICLE ACTION CALLED ---');
     const newVehicleRef = doc(collection(db, 'vehicles'));
     const vehicleId = newVehicleRef.id;
 
@@ -64,22 +63,11 @@ export async function createVehicle(db: Firestore, storage: Storage, vehicleData
         fechaCreacion: serverTimestamp(),
     };
     
-    try {
-        await setDoc(newVehicleRef, dataToCreate);
-    } catch (error) {
-        errorEmitter.emit(
-          'permission-error',
-          new FirestorePermissionError({
-            path: newVehicleRef.path,
-            operation: 'create',
-            requestResourceData: dataToCreate,
-          })
-        );
-        throw error;
-    }
+    await setDoc(newVehicleRef, dataToCreate);
 }
 
 export async function updateVehicle(db: Firestore, storage: Storage, existingVehicle: Vehicle, vehicleData: VehicleFormValues) {
+    console.log('--- UPDATE VEHICLE ACTION CALLED ---');
     const docRef = doc(db, 'vehicles', existingVehicle.id);
     
     const { imagenPrincipalUrl, galeriaImagenesUrls } = await handleImageUploads(storage, existingVehicle.id, vehicleData, existingVehicle);
@@ -100,22 +88,11 @@ export async function updateVehicle(db: Firestore, storage: Storage, existingVeh
         galeriaImagenesUrls,
     };
 
-    try {
-        await updateDoc(docRef, dataToUpdate);
-    } catch (error) {
-        errorEmitter.emit(
-          'permission-error',
-          new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'update',
-            requestResourceData: dataToUpdate,
-          })
-        );
-        throw error;
-    }
+    await updateDoc(docRef, dataToUpdate);
 }
 
 export async function deleteVehicle(db: Firestore, storage: Storage, vehicle: Vehicle) {
+    console.log('--- DELETE VEHICLE ACTION CALLED ---');
     const docRef = doc(db, 'vehicles', vehicle.id);
 
     // Delete all images from storage first
@@ -128,17 +105,5 @@ export async function deleteVehicle(db: Firestore, storage: Storage, vehicle: Ve
         }
     }
 
-    // Then delete the firestore document
-    try {
-        await deleteDoc(docRef);
-    } catch (error) {
-        errorEmitter.emit(
-          'permission-error',
-          new FirestorePermissionError({
-            path: docRef.path,
-            operation: 'delete',
-          })
-        );
-        throw error;
-    }
+    await deleteDoc(docRef);
 }
