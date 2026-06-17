@@ -11,7 +11,7 @@ export default function Home() {
       </div>
       
       <footer className="mt-12 text-center text-muted-foreground text-sm">
-        <p>© {new Date().getFullYear()} DocAI - Procesamiento Inteligente de Documentos</p>
+        <p>© 2026 MediaUp - hecho por Joaquin Espindola</p>
       </footer>
     </main>
   );
