@@ -1,150 +1,27 @@
+
 {
   "entities": {
-    "Vehicle": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Vehicle",
+    "ProcessingSession": {
+      "title": "Processing Session",
+      "description": "Metadata about a document processing session.",
       "type": "object",
-      "description": "Represents a vehicle in the dealership's inventory.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Vehicle entity."
-        },
-        "marca": {
-          "type": "string",
-          "description": "The brand of the vehicle, e.g., 'Audi'."
-        },
-        "modelo": {
-          "type": "string",
-          "description": "The model of the vehicle, e.g., 'Q5'."
-        },
-        "ano": {
-          "type": "number",
-          "description": "The manufacturing year of the vehicle."
-        },
-        "precio": {
-          "type": "number",
-          "description": "The price of the vehicle. Optional."
-        },
-        "kilometraje": {
-          "type": "number",
-          "description": "The mileage of the vehicle in kilometers."
-        },
-        "combustible": {
-          "type": "string",
-          "description": "The type of fuel the vehicle uses.",
-          "enum": ["Nafta", "Diesel", "Electrico", "Hibrido"]
-        },
-        "transmision": {
-          "type": "string",
-          "description": "The transmission type of the vehicle.",
-          "enum": ["Manual", "Automatica"]
-        },
-        "tipoVehiculo": {
-          "type": "string",
-          "description": "The type of the vehicle.",
-          "enum": ["Auto", "Camioneta", "SUV", "Utilitario"]
-        },
-        "descripcion": {
-          "type": "string",
-          "description": "A detailed description of the vehicle."
-        },
-        "destacado": {
-          "type": "boolean",
-          "description": "Flag to feature the vehicle on the homepage."
-        },
-        "vendido": {
-          "type": "boolean",
-          "description": "Flag to mark the vehicle as sold."
-        },
-        "fechaCreacion": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp of when the vehicle was added."
-        },
-        "imagenPrincipalUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "Main image URL for the vehicle."
-        },
-        "galeriaImagenesUrls": {
-            "type": "array",
-            "description": "Array of image URLs for the vehicle's gallery.",
-            "items": {
-                "type": "string",
-                "format": "uri"
-            }
-        }
+        "id": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "processing", "completed", "failed"] },
+        "frontUrl": { "type": "string", "format": "uri" },
+        "backUrl": { "type": "string", "format": "uri" }
       },
-      "required": [
-        "id",
-        "marca",
-        "modelo",
-        "ano",
-        "kilometraje",
-        "combustible",
-        "transmision",
-        "tipoVehiculo",
-        "descripcion",
-        "destacado",
-        "vendido",
-        "fechaCreacion",
-        "imagenPrincipalUrl"
-      ]
-    },
-    "User": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "User",
-        "type": "object",
-        "description": "Represents a user in the system.",
-        "properties": {
-            "id": {
-                "type": "string"
-            }
-        },
-        "required": ["id"]
+      "required": ["id", "createdAt", "status"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["anonymous"]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/vehicles/{vehicleId}",
-        "definition": {
-          "entityName": "Vehicle",
-          "schema": {
-            "$ref": "#/backend/entities/Vehicle"
-          },
-          "description": "Stores all vehicles for the dealership.",
-          "params": [
-            {
-              "name": "vehicleId",
-              "description": "The unique identifier for a specific vehicle."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/roles_admin/{adminId}",
-        "definition": {
-          "entityName": "role",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "A collection where the existence of a document signifies that the corresponding user ID (adminId) has administrator privileges.",
-          "params": [
-            {
-              "name": "adminId",
-              "description": "The unique identifier of a user who has administrator privileges."
-            }
-          ]
-        }
-      }
-    ]
+    "/sessions/{sessionId}": {
+      "schema": "#/backend/entities/ProcessingSession",
+      "description": "Stores document processing history (anonymous)."
+    }
   }
 }

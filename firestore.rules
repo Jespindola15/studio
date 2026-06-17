@@ -3,8 +3,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // AVISO: Reglas abiertas temporalmente para depuración.
-    // Permite que cualquier cliente lea o escriba en cualquier documento.
     match /{document=**} {
       allow read, write: if true;
     }

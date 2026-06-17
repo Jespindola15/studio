@@ -1,13 +1,12 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'AutoHaus | Tu Próximo Vehículo',
-  description: 'Encontrá autos seminuevos verificados. Financiación a tu medida y atención personalizada.',
+  title: 'DocAI | Scanner Inteligente',
+  description: 'Convierte tus fotos en PDFs optimizados con detección automática de documentos.',
 };
 
 export default function RootLayout({
@@ -16,20 +15,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark scroll-smooth">
+    <html lang="es">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased">
+      <body className="antialiased font-['Plus_Jakarta_Sans',sans-serif]">
         <FirebaseClientProvider>
-          <div className="flex flex-col min-h-dvh">
-            {children}
-          </div>
+          {children}
           <Toaster />
         </FirebaseClientProvider>
       </body>
