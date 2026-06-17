@@ -103,12 +103,44 @@ export function DocumentProcessor() {
     setIsGenerating(true);
     try {
       const pdfDataUri = await generateOptimizedPDF(front.preview, back.preview);
-      const link = document.createElement('a');
-      link.href = pdfDataUri;
-      link.download = `documento_escaneado_${Date.now()}.pdf`;
-      link.click();
-      toast({ title: '¡Listo!', description: 'Tu PDF optimizado se ha descargado.' });
-      
+
+      // Convert data URI to Blob
+      const res = await fetch(pdfDataUri);
+      const blob = await res.blob();
+      const filename = `documento_escaneado_${Date.now()}.pdf`;
+
+      // If Web Share API with files is available (mobile), use it
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [new File([blob], filename, { type: blob.type })] })) {
+          await (navigator as any).share({ files: [new File([blob], filename, { type: blob.type })], title: filename });
+          toast({ title: 'Compartido', description: 'Abre el archivo desde tu dispositivo.' });
+        } else {
+          // Fallback: use blob URL and trigger download
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          // For iOS/Safari where download attribute is unreliable, open in new tab
+          const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent);
+          if (isIOS) window.open(url, '_blank');
+          else link.click();
+          // Cleanup
+          setTimeout(() => URL.revokeObjectURL(url), 10000);
+          toast({ title: '¡Listo!', description: 'Tu PDF está listo — se ha iniciado la descarga o se abrió en una nueva pestaña.' });
+        }
+      } catch (shareErr) {
+        // If share fails, fallback to blob URL download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent);
+        if (isIOS) window.open(url, '_blank');
+        else link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        toast({ title: '¡Listo!', description: 'Tu PDF está listo — se ha iniciado la descarga o se abrió en una nueva pestaña.' });
+      }
+
       setFront(null);
       setBack(null);
     } catch (error) {
