@@ -1,37 +1,32 @@
-# DocScanner - Generador de PDF Optimizado
 
-Esta es una aplicación web diseñada para escanear documentos (Frente y Dorso) y generar un PDF optimizado de forma instantánea y privada, ya que todo el procesamiento ocurre en tu navegador.
+# DocScanner - Generador de PDF Instantáneo
 
-## 🚀 Cómo usarlo gratis para siempre
+Esta aplicación permite escanear documentos (Frente y Dorso) y generar un PDF optimizado de forma instantánea. Todo el procesamiento ocurre localmente en tu navegador para garantizar máxima privacidad.
 
-### Opción A: Despliegue en Vercel (Recomendado por simplicidad)
-1. Sube este código a un repositorio de **GitHub**.
-2. Ve a [Vercel](https://vercel.com) y crea una cuenta gratuita.
-3. Haz clic en **"Add New"** > **"Project"**.
-4. Importa tu repositorio de GitHub.
-5. Haz clic en **"Deploy"**.
-6. ¡Listo! Tendrás una URL tipo `tu-proyecto.vercel.app` que funcionará siempre.
+## 🚀 Cómo subir tu página GRATIS
 
-### Opción B: Despliegue en Firebase App Hosting
-Dado que este proyecto ya tiene `apphosting.yaml`:
-1. Instala Firebase CLI: `npm install -g firebase-tools`.
-2. Ejecuta `firebase login`.
+### 1. Usando Vercel (La forma más fácil)
+1. Crea una cuenta gratuita en [Vercel.com](https://vercel.com).
+2. Haz clic en **"Add New"** > **"Project"**.
+3. Si te pide conectar GitHub y te solicita un **código**, haz lo siguiente:
+   - Mira la pantalla de la extensión/aplicación: allí aparecerá un código tipo `ABCD-1234`.
+   - Ve a [github.com/login/device](https://github.com/login/device) en tu navegador.
+   - Pega el código allí y presiona **Continue**.
+   - Haz clic en **Authorize**.
+4. Una vez conectado, selecciona este repositorio y dale a **Deploy**.
+5. ¡Listo! Tendrás una dirección web gratis para compartir.
+
+### 2. Usando Firebase App Hosting
+1. En tu terminal ejecuta: `npm install -g firebase-tools`.
+2. Ejecuta `firebase login` y sigue los pasos en el navegador.
 3. Ejecuta `firebase init apphosting`.
-4. Sigue los pasos para conectar tu GitHub.
-5. Firebase desplegará tu app automáticamente en su infraestructura gratuita.
+4. Sigue los pasos para conectar con GitHub (es el mismo proceso del código mencionado arriba).
 
-### Opción C: Uso Local (Sin internet)
-Si quieres usarlo en tu propia computadora sin subirlo a ningún lado:
-1. Descarga el código.
-2. Abre una terminal en la carpeta.
-3. Instala las dependencias: `npm install`.
-4. Ejecuta: `npm run dev`.
-5. Abre `http://localhost:9002` en tu navegador.
-
-## 📱 Características Móviles
-- Al tocar "Seleccionar", el móvil te permitirá elegir entre **Cámara**, **Galería** o **Explorador de archivos**.
-- Funciona sin necesidad de enviar tus fotos a ningún servidor (Privacidad Total).
-- Permite subir PDFs originales y extraer sus páginas para generar un nuevo PDF optimizado.
+## 📱 Funciones Principales
+- **Menú Completo en Móvil**: Al presionar "Seleccionar", podrás elegir entre Cámara, Galería o tus Archivos.
+- **Soporte PDF**: Puedes subir un PDF original y la app extraerá la primera página automáticamente.
+- **Privacidad Total**: Tus fotos nunca salen de tu dispositivo hacia ningún servidor; el PDF se construye en tu propia memoria RAM.
+- **Limpieza Automática**: Al descargar el PDF, la app se reinicia sola para el siguiente escaneo.
 
 ---
 Generado con Firebase Studio.
