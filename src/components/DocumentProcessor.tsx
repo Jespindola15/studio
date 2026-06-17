@@ -42,39 +42,42 @@ export function DocumentProcessor() {
       status: 'analyzing'
     };
 
-    // Sequential placement logic
+    // Logical placement: first one available
     if (!front) setFront(newDoc);
     else if (!back) setBack(newDoc);
     else {
-      toast({ title: 'Límite alcanzado', description: 'Ya tienes ambos lados.' });
+      toast({ title: 'Límite alcanzado', description: 'Ya tienes ambos documentos cargados.' });
       return;
     }
 
     try {
-      const analysis = await analyzeDocumentSide({ photoDataUri: base64 });
+      const result = await analyzeDocumentSide({ photoDataUri: base64 });
       
-      const updatedDoc: DocFile = { 
+      const readyDoc: DocFile = { 
         ...newDoc, 
-        preview: analysis.croppedPhotoDataUri || base64,
+        preview: result.croppedPhotoDataUri || base64,
         status: 'ready' 
       };
 
-      if (analysis.side === 'front') {
-        setFront(updatedDoc);
+      if (result.side === 'front') {
+        setFront(readyDoc);
+        // If it was in the back slot by mistake, remove it from there
         setBack(prev => prev?.id === id ? null : prev);
-      } else if (analysis.side === 'back') {
-        setBack(updatedDoc);
+      } else if (result.side === 'back') {
+        setBack(readyDoc);
+        // If it was in the front slot by mistake, remove it from there
         setFront(prev => prev?.id === id ? null : prev);
       } else {
-        // If unknown, keep it in its current slot
-        if (front?.id === id) setFront(updatedDoc);
-        else if (back?.id === id) setBack(updatedDoc);
+        // Unknown: just mark as ready in the slot it was assigned to
+        if (front?.id === id) setFront(readyDoc);
+        else if (back?.id === id) setBack(readyDoc);
       }
     } catch (error) {
       console.error('AI Error:', error);
       const readyDoc: DocFile = { ...newDoc, preview: base64, status: 'ready' };
       if (front?.id === id) setFront(readyDoc);
       else if (back?.id === id) setBack(readyDoc);
+      toast({ title: 'Nota', description: 'La IA no pudo procesar la imagen, usando original.' });
     }
   };
 
@@ -101,9 +104,9 @@ export function DocumentProcessor() {
       link.href = pdfDataUri;
       link.download = `documento_optimizado_${Date.now()}.pdf`;
       link.click();
-      toast({ title: 'PDF Generado', description: 'El documento se ha descargado.' });
+      toast({ title: 'PDF Generado', description: 'Tu documento está listo.' });
       
-      // Reset the application state after successful download
+      // Auto-reset state
       setFront(null);
       setBack(null);
     } catch (error) {
@@ -135,7 +138,7 @@ export function DocumentProcessor() {
             <Camera size={32} />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold">Toca para capturar</p>
+            <p className="text-sm font-semibold">Click o Toca aquí</p>
             <p className="text-xs text-muted-foreground mt-1">Sube el {type === 'front' ? 'frente' : 'dorso'}</p>
           </div>
         </div>
@@ -144,13 +147,12 @@ export function DocumentProcessor() {
           <Image src={doc.preview} alt={title} fill className="object-contain" />
           
           {doc.status === 'analyzing' && (
-            <div className="absolute inset-0 bg-background/60 backdrop-blur-[4px] flex flex-col items-center justify-center z-10">
-              <div className="relative">
-                <Loader2 className="animate-spin text-primary" size={32} />
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-primary mt-3">
-                Limpiando Fondo...
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-[4px] flex flex-col items-center justify-center z-10 text-center px-4">
+              <Loader2 className="animate-spin text-primary mb-3" size={32} />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                Aislando Documento...
               </span>
+              <p className="text-[9px] text-muted-foreground mt-1 uppercase">Removiendo fondo con IA</p>
             </div>
           )}
           
@@ -166,7 +168,7 @@ export function DocumentProcessor() {
         <div className="mt-4 flex items-center justify-between px-1">
           <div className="flex flex-col">
             <span className="text-[10px] font-medium text-muted-foreground truncate max-w-[120px]">{doc.file.name}</span>
-            <span className="text-[10px] text-muted-foreground/60 uppercase">{(doc.file.size / 1024).toFixed(0)} KB • IA Optimizada</span>
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{(doc.file.size / 1024).toFixed(0)} KB • IA Procesada</span>
           </div>
         </div>
       )}
@@ -179,10 +181,10 @@ export function DocumentProcessor() {
       
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-2">
-          <Scissors size={14} /> Eliminación de fondo con IA
+          <Scissors size={14} /> Visión Artificial Avanzada
         </div>
         <h1 className="text-4xl font-black tracking-tight text-slate-900 md:text-5xl">DocScanner AI</h1>
-        <p className="text-slate-500 text-lg max-w-xl mx-auto">Captura tus documentos. Nuestra IA eliminará el fondo automáticamente para un resultado perfecto.</p>
+        <p className="text-slate-500 text-lg max-w-xl mx-auto">La forma más rápida de escanear tus documentos. Aislamiento perfecto garantizado.</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 px-2">
@@ -200,18 +202,18 @@ export function DocumentProcessor() {
           {isGenerating ? (
             <><Loader2 className="mr-3 animate-spin" /> GENERANDO PDF...</>
           ) : (
-            <><Download className="mr-3" /> DESCARGAR PDF OPTIMIZADO</>
+            <><Download className="mr-3" /> DESCARGAR PDF ESCANEADO</>
           )}
         </Button>
         
         <div className="flex items-center gap-8 text-muted-foreground/40">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Procesamiento Local</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Procesamiento IA</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Fondo Inteligente</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Fondo Transparente</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-purple-500" />

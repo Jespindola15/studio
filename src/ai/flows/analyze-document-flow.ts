@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview Flow to detect document side and perform background removal using AI.
- * Uses Gemini 2.5 Flash for analysis and Gemini 2.5 Flash Image for precise document isolation.
+ * @fileOverview Flow to detect document side and perform surgical background removal using AI.
+ * Uses Gemini 2.5 Flash for metadata and Gemini 2.5 Flash Image for precise document isolation.
  */
 
 import { ai } from '@/ai/genkit';
@@ -35,28 +35,38 @@ const analyzeDocumentFlow = ai.defineFlow(
   },
   async (input) => {
     // 1. Step: Metadata Analysis (Detecting Front or Back)
-    const analysisResponse = await ai.generate({
-      model: 'googleai/gemini-2.5-flash',
-      prompt: [
-        { media: { url: input.photoDataUri } },
-        { text: 'Analiza este documento. Identifica si es el FRENTE (con foto/chip) o el DORSO (con códigos de barras/MRZ). Responde solo con el lado detectado y una breve razón.' }
-      ],
-      output: { 
-        schema: z.object({ 
-          side: z.enum(['front', 'back', 'unknown']), 
-          reasoning: z.string() 
-        }) 
-      }
-    });
+    let side: 'front' | 'back' | 'unknown' = 'unknown';
+    let reasoning = 'No se pudo determinar el lado.';
 
-    const analysis = analysisResponse.output;
+    try {
+      const analysisResponse = await ai.generate({
+        model: 'googleai/gemini-2.5-flash',
+        prompt: [
+          { media: { url: input.photoDataUri } },
+          { text: 'Analiza este documento. Identifica si es el FRENTE (con foto/chip/datos principales) o el DORSO (con códigos de barras/MRZ/firmas). Responde en formato JSON con los campos "side" (front/back/unknown) y "reasoning".' }
+        ],
+        output: { 
+          schema: z.object({ 
+            side: z.enum(['front', 'back', 'unknown']), 
+            reasoning: z.string() 
+          }) 
+        }
+      });
+
+      if (analysisResponse.output) {
+        side = analysisResponse.output.side;
+        reasoning = analysisResponse.output.reasoning;
+      }
+    } catch (e) {
+      console.error('Side detection error:', e);
+    }
 
     // 2. Step: Surgical Background Removal & Document Isolation
-    // Using the user-provided high-precision computer vision prompt
     let croppedPhotoDataUri: string | undefined;
     
     try {
-      const { media } = await ai.generate({
+      // Use exact prompt provided by the user for precise isolation
+      const imageResponse = await ai.generate({
         model: 'googleai/gemini-2.5-flash-image',
         prompt: [
           { media: { url: input.photoDataUri } },
@@ -80,17 +90,17 @@ Devuelve exclusivamente la imagen recortada en alta resolución, manteniendo la 
         },
       });
 
-      if (media?.url) {
-        croppedPhotoDataUri = media.url;
+      // The media property contains the generated image
+      if (imageResponse.media?.url) {
+        croppedPhotoDataUri = imageResponse.media.url;
       }
     } catch (error) {
-      console.error('AI Processing Error:', error);
-      // Fallback: keep original if AI fails
+      console.error('Image processing error:', error);
     }
 
     return {
-      side: analysis?.side || 'unknown',
-      reasoning: analysis?.reasoning || 'No se pudo analizar el documento.',
+      side,
+      reasoning,
       croppedPhotoDataUri: croppedPhotoDataUri || input.photoDataUri,
     };
   }
