@@ -2,38 +2,8 @@
 import { jsPDF } from 'jspdf';
 
 /**
- * Crops a base64 image based on normalized coordinates (0-1000)
- */
-export async function cropImage(
-  base64: string,
-  box: { x: number; y: number; width: number; height: number }
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return reject('No canvas context');
-
-      // Convert normalized to pixel coordinates
-      const sx = (box.x / 1000) * img.width;
-      const sy = (box.y / 1000) * img.height;
-      const sw = (box.width / 1000) * img.width;
-      const sh = (box.height / 1000) * img.height;
-
-      canvas.width = sw;
-      canvas.height = sh;
-
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-      resolve(canvas.toDataURL('image/jpeg', 0.9));
-    };
-    img.onerror = reject;
-    img.src = base64;
-  });
-}
-
-/**
  * Generates an optimized PDF from front and back images.
+ * Uses PNG format to maintain transparency if provided by the AI processing.
  */
 export async function generateOptimizedPDF(frontBase64: string, backBase64: string): Promise<string> {
   const doc = new jsPDF({
@@ -44,7 +14,7 @@ export async function generateOptimizedPDF(frontBase64: string, backBase64: stri
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const margin = 10;
+  const margin = 15; // Increased margin for a cleaner look
   const availableWidth = pageWidth - margin * 2;
   const slotHeight = (pageHeight - margin * 3) / 2;
 
@@ -56,13 +26,16 @@ export async function generateOptimizedPDF(frontBase64: string, backBase64: stri
         let drawWidth = availableWidth;
         let drawHeight = drawWidth / imgRatio;
 
+        // Ensure it fits in its slot
         if (drawHeight > slotHeight) {
           drawHeight = slotHeight;
           drawWidth = drawHeight * imgRatio;
         }
 
         const xOffset = margin + (availableWidth - drawWidth) / 2;
-        doc.addImage(base64, 'JPEG', xOffset, yPos, drawWidth, drawHeight, undefined, 'FAST');
+        
+        // Use PNG to support potential transparency from the AI isolation step
+        doc.addImage(base64, 'PNG', xOffset, yPos, drawWidth, drawHeight, undefined, 'MEDIUM');
         resolve();
       };
       img.src = base64;

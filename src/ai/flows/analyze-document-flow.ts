@@ -65,7 +65,6 @@ const analyzeDocumentFlow = ai.defineFlow(
     let croppedPhotoDataUri: string | undefined;
     
     try {
-      // Use exact prompt provided by the user for precise isolation
       const imageResponse = await ai.generate({
         model: 'googleai/gemini-2.5-flash-image',
         prompt: [
@@ -79,18 +78,17 @@ Tu único objetivo es aislar el documento de identidad principal (DNI/Credencial
 [INSTRUCCIONES DE PROCESAMIENTO]
 1. Identificación del Objeto: Localiza los cuatro bordes (esquinas redondeadas) de la tarjeta de identificación plástica.
 2. Segmentación de Fondo: Remueve de manera precisa todo elemento ajeno al documento. Asegúrate de recortar limpiamente las sombras proyectadas en los bordes para evitar contornos oscuros no deseados.
-3. Máscara de Transparencia: Aplica un canal alfa (transparencia) en el área remanente externa al documento o usa fondo blanco puro si la transparencia no es posible. No recortes ni modifiques ninguna esquina o información nativa de la credencial.
+3. Máscara de Transparencia: Aplica un canal alfa (transparencia) en el área remanente externa al documento. El resultado debe ser exclusivamente el documento.
 4. Enderezado: Aplica una transformación de perspectiva (warp perspective) para enderezar el documento de forma frontal y perfectamente rectangular. El resultado debe parecer un escaneo plano.
 
 [FORMATO DE SALIDA]
-Devuelve exclusivamente la imagen recortada en alta resolución, manteniendo la nitidez original de los datos legibles dentro del documento. No agregues texto explicativo ni metadatos adicionales en la respuesta visual.` },
+Devuelve exclusivamente la imagen recortada en alta resolución (formato PNG con transparencia si es posible), manteniendo la nitidez original de los datos legibles dentro del documento. No agregues texto explicativo ni metadatos adicionales en la respuesta visual.` },
         ],
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
         },
       });
 
-      // The media property contains the generated image
       if (imageResponse.media?.url) {
         croppedPhotoDataUri = imageResponse.media.url;
       }
