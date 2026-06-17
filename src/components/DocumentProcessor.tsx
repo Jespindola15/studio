@@ -9,7 +9,7 @@ import { fileToBase64, generateOptimizedPDF } from '@/lib/pdf-service';
 import Image from 'next/image';
 import * as pdfjs from 'pdfjs-dist';
 
-// Configure pdfjs worker
+// Configuración del worker de PDF.js
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 type DocSide = 'front' | 'back';
