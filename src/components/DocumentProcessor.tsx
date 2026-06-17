@@ -6,7 +6,7 @@ import { Camera, FileUp, FileX, Loader2, Download, CheckCircle2, Scissors, Refre
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeDocumentSide } from '@/ai/flows/analyze-document-flow';
-import { fileToBase64, generateOptimizedPDF, cropImage } from '@/lib/pdf-service';
+import { fileToBase64, generateOptimizedPDF } from '@/lib/pdf-service';
 import Image from 'next/image';
 
 type DocSide = 'front' | 'back';
@@ -15,7 +15,7 @@ interface DocFile {
   id: string;
   file: File;
   preview: string;
-  status: 'analyzing' | 'cropping' | 'ready' | 'error';
+  status: 'analyzing' | 'ready' | 'error';
 }
 
 export function DocumentProcessor() {
@@ -53,25 +53,9 @@ export function DocumentProcessor() {
     try {
       const analysis = await analyzeDocumentSide({ photoDataUri: base64 });
       
-      let finalPreview = base64;
-      
-      // Auto crop if AI detected a document
-      if (analysis.boundingBox) {
-        try {
-          // Update status to cropping to show feedback
-          const croppingDoc: DocFile = { ...newDoc, status: 'cropping' };
-          if (front?.id === id) setFront(croppingDoc);
-          else if (back?.id === id) setBack(croppingDoc);
-
-          finalPreview = await cropImage(base64, analysis.boundingBox);
-        } catch (cropError) {
-          console.error('Crop error:', cropError);
-        }
-      }
-
       const updatedDoc: DocFile = { 
         ...newDoc, 
-        preview: finalPreview,
+        preview: analysis.croppedPhotoDataUri || base64,
         status: 'ready' 
       };
 
@@ -82,6 +66,7 @@ export function DocumentProcessor() {
         setBack(updatedDoc);
         setFront(prev => prev?.id === id ? null : prev);
       } else {
+        // If unknown, keep it in its current slot
         if (front?.id === id) setFront(updatedDoc);
         else if (back?.id === id) setBack(updatedDoc);
       }
@@ -158,16 +143,13 @@ export function DocumentProcessor() {
         <div className="relative flex-1 rounded-xl overflow-hidden border bg-white shadow-sm transition-all duration-500">
           <Image src={doc.preview} alt={title} fill className="object-contain" />
           
-          {(doc.status === 'analyzing' || doc.status === 'cropping') && (
+          {doc.status === 'analyzing' && (
             <div className="absolute inset-0 bg-background/60 backdrop-blur-[4px] flex flex-col items-center justify-center z-10">
               <div className="relative">
                 <Loader2 className="animate-spin text-primary" size={32} />
-                {doc.status === 'cropping' && (
-                  <Scissors className="absolute inset-0 m-auto text-primary animate-pulse" size={16} />
-                )}
               </div>
               <span className="text-[10px] font-bold uppercase tracking-widest text-primary mt-3">
-                {doc.status === 'analyzing' ? 'Detectando con AI' : 'Recortando...'}
+                Limpiando Fondo...
               </span>
             </div>
           )}
@@ -184,7 +166,7 @@ export function DocumentProcessor() {
         <div className="mt-4 flex items-center justify-between px-1">
           <div className="flex flex-col">
             <span className="text-[10px] font-medium text-muted-foreground truncate max-w-[120px]">{doc.file.name}</span>
-            <span className="text-[10px] text-muted-foreground/60 uppercase">{(doc.file.size / 1024).toFixed(0)} KB • AI Optimizada</span>
+            <span className="text-[10px] text-muted-foreground/60 uppercase">{(doc.file.size / 1024).toFixed(0)} KB • IA Optimizada</span>
           </div>
         </div>
       )}
@@ -197,10 +179,10 @@ export function DocumentProcessor() {
       
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-2">
-          <Scissors size={14} /> Recorte automático con IA
+          <Scissors size={14} /> Eliminación de fondo con IA
         </div>
         <h1 className="text-4xl font-black tracking-tight text-slate-900 md:text-5xl">DocScanner AI</h1>
-        <p className="text-slate-500 text-lg max-w-xl mx-auto">Captura tus documentos. Nuestra IA detectará los bordes, recortará el exceso y creará un PDF perfecto.</p>
+        <p className="text-slate-500 text-lg max-w-xl mx-auto">Captura tus documentos. Nuestra IA eliminará el fondo automáticamente para un resultado perfecto.</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-8 px-2">
@@ -229,11 +211,11 @@ export function DocumentProcessor() {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Auto-Recorte</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Fondo Inteligente</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-purple-500" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">Gemini Vision</span>
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Gemini Vision 2.5</span>
           </div>
         </div>
       </div>

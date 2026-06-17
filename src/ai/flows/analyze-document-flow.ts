@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview Flow to detect side and bounding box of a document for auto-cropping.
- * Includes enhanced prompt instructions for precise edge detection and retry logic.
+ * @fileOverview Flow to detect document side and perform background removal using AI.
+ * Uses Gemini 2.5 Flash Image to isolate the document from the background.
  */
 
 import { ai } from '@/ai/genkit';
@@ -11,53 +11,21 @@ const AnalyzeDocumentInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      "A photo of a document, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo of a document as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type AnalyzeDocumentInput = z.infer<typeof AnalyzeDocumentInputSchema>;
 
 const AnalyzeDocumentOutputSchema = z.object({
   side: z.enum(['front', 'back', 'unknown']).describe('The detected side of the document.'),
-  confidence: z.number().describe('Confidence score from 0 to 1.'),
-  documentType: z.string().optional().describe('Type of document detected (e.g. ID, Passport, Driver License).'),
-  boundingBox: z.object({
-    x: z.number().describe('Normalized x coordinate of the top-left corner (0-1000).'),
-    y: z.number().describe('Normalized y coordinate of the top-left corner (0-1000).'),
-    width: z.number().describe('Normalized width of the document (0-1000).'),
-    height: z.number().describe('Normalized height of the document (0-1000).'),
-  }).optional().describe('The precise bounding box of the document card itself, excluding any background.'),
-  reasoning: z.string().describe('Short explanation of why it was classified and cropped as such.'),
+  croppedPhotoDataUri: z.string().optional().describe('The document image with the background completely removed.'),
+  reasoning: z.string().describe('Explanation of the detection and processing.'),
 });
 export type AnalyzeDocumentOutput = z.infer<typeof AnalyzeDocumentOutputSchema>;
 
 export async function analyzeDocumentSide(input: AnalyzeDocumentInput): Promise<AnalyzeDocumentOutput> {
   return analyzeDocumentFlow(input);
 }
-
-const prompt = ai.definePrompt({
-  name: 'analyzeDocumentPrompt',
-  input: { schema: AnalyzeDocumentInputSchema },
-  output: { schema: AnalyzeDocumentOutputSchema },
-  prompt: `You are an expert document vision AI specialized in high-precision document scanning. 
-
-Your task is to analyze the provided image and extract the exact coordinates of the physical ID document or card.
-
-INSTRUCTIONS:
-1. DETECT SIDE: Identify if it's the FRONT or BACK of a personal ID.
-   - FRONT clues: Portrait photo, name, logo, chip.
-   - BACK clues: MRZ code (<<<<), barcodes, signature strip.
-
-2. PRECISE CROPPING (CRITICAL): 
-   - Identify the FOUR CORNERS of the ID card.
-   - The bounding box must include the ENTIRE card and ONLY the card.
-   - EXCLUDE strictly: tables, hands, fingers holding the card, shadows, and any background.
-   - If the card is rotated, provide the smallest upright bounding box that fully contains it.
-   - Return normalized coordinates (0-1000) relative to the image dimensions.
-
-3. REASONING: Briefly explain your detection.
-
-Photo: {{media url=photoDataUri}}`,
-});
 
 const analyzeDocumentFlow = ai.defineFlow(
   {
@@ -66,37 +34,48 @@ const analyzeDocumentFlow = ai.defineFlow(
     outputSchema: AnalyzeDocumentOutputSchema,
   },
   async (input) => {
-    const MAX_RETRIES = 3;
-    let lastError;
+    // We use the specialized image-to-image model for background removal
+    // and the base model for structured analysis.
+    
+    // 1. Analysis Step (Textual)
+    const analysisResponse = await ai.generate({
+      model: 'googleai/gemini-2.5-flash',
+      prompt: [
+        { media: { url: input.photoDataUri } },
+        { text: 'Analyze this document. Identify if it is the FRONT or BACK. FRONT usually has a photo/chip. BACK usually has barcodes/MRZ. Provide reasoning.' }
+      ],
+      output: { schema: z.object({ side: z.enum(['front', 'back', 'unknown']), reasoning: z.string() }) }
+    });
 
-    for (let i = 0; i < MAX_RETRIES; i++) {
-      try {
-        const { output } = await prompt(input);
-        if (!output) throw new Error('AI failed to analyze document');
-        
-        // Safety check for unrealistic bounding boxes
-        if (output.boundingBox) {
-          const { width, height } = output.boundingBox;
-          if (width < 50 || height < 50) {
-             console.warn('AI detected a suspicious document size, ignoring crop.');
-             delete output.boundingBox;
-          }
-        }
+    const analysis = analysisResponse.output;
 
-        return output;
-      } catch (error: any) {
-        lastError = error;
-        const isTransient = error?.message?.includes('503') || error?.message?.includes('429') || error?.message?.includes('UNAVAILABLE');
-        
-        if (isTransient && i < MAX_RETRIES - 1) {
-          const delay = 1500 * (i + 1);
-          console.warn(`AI model busy (503/429). Retry attempt ${i + 1}/${MAX_RETRIES} in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
-        }
-        throw error;
+    // 2. Background Removal Step (Image-to-Image)
+    // We request the model to isolate the document.
+    let croppedPhotoDataUri: string | undefined;
+    try {
+      const { media } = await ai.generate({
+        model: 'googleai/gemini-2.5-flash-image',
+        prompt: [
+          { media: { url: input.photoDataUri } },
+          { text: 'Generate a new image containing ONLY the document card. Remove the entire background, including tables, hands, and shadows. Crop precisely to the document edges and straighten it if it is tilted. The result should look like a flat, clean scan.' },
+        ],
+        config: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      });
+
+      if (media?.url) {
+        croppedPhotoDataUri = media.url;
       }
+    } catch (error) {
+      console.error('Failed to remove background with AI:', error);
+      // Fallback: use the original image if AI cropping fails
     }
-    throw lastError || new Error('AI analysis failed after multiple retries.');
+
+    return {
+      side: analysis?.side || 'unknown',
+      reasoning: analysis?.reasoning || 'No se pudo analizar el documento.',
+      croppedPhotoDataUri: croppedPhotoDataUri || input.photoDataUri,
+    };
   }
 );
