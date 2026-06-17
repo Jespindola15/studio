@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview Flow to detect side and bounding box of a document for auto-cropping.
- * Includes retry logic to handle transient 503 Service Unavailable errors.
+ * Includes enhanced prompt instructions for precise edge detection and retry logic.
  */
 
 import { ai } from '@/ai/genkit';
@@ -25,8 +25,8 @@ const AnalyzeDocumentOutputSchema = z.object({
     y: z.number().describe('Normalized y coordinate of the top-left corner (0-1000).'),
     width: z.number().describe('Normalized width of the document (0-1000).'),
     height: z.number().describe('Normalized height of the document (0-1000).'),
-  }).optional().describe('The precise bounding box of the ID card/document within the photo.'),
-  reasoning: z.string().describe('Short explanation of why it was classified as such.'),
+  }).optional().describe('The precise bounding box of the document card itself, excluding any background.'),
+  reasoning: z.string().describe('Short explanation of why it was classified and cropped as such.'),
 });
 export type AnalyzeDocumentOutput = z.infer<typeof AnalyzeDocumentOutputSchema>;
 
@@ -38,14 +38,23 @@ const prompt = ai.definePrompt({
   name: 'analyzeDocumentPrompt',
   input: { schema: AnalyzeDocumentInputSchema },
   output: { schema: AnalyzeDocumentOutputSchema },
-  prompt: `You are an expert document analysis AI. 
-Analyze the image and:
-1. Determine if it is the FRONT or BACK of a personal identification document.
-2. Find the PRECISE BOUNDING BOX of the document itself, excluding the background (table, hands, etc.).
-3. Return normalized coordinates (0-1000) for x, y, width, and height.
+  prompt: `You are an expert document vision AI specialized in high-precision document scanning. 
 
-Visual Cues for FRONT: Portrait photo, full name, national emblems.
-Visual Cues for BACK: MRZ (<<<< text), barcodes, QR codes, magnetic stripes.
+Your task is to analyze the provided image and extract the exact coordinates of the physical ID document or card.
+
+INSTRUCTIONS:
+1. DETECT SIDE: Identify if it's the FRONT or BACK of a personal ID.
+   - FRONT clues: Portrait photo, name, logo, chip.
+   - BACK clues: MRZ code (<<<<), barcodes, signature strip.
+
+2. PRECISE CROPPING (CRITICAL): 
+   - Identify the FOUR CORNERS of the ID card.
+   - The bounding box must include the ENTIRE card and ONLY the card.
+   - EXCLUDE strictly: tables, hands, fingers holding the card, shadows, and any background.
+   - If the card is rotated, provide the smallest upright bounding box that fully contains it.
+   - Return normalized coordinates (0-1000) relative to the image dimensions.
+
+3. REASONING: Briefly explain your detection.
 
 Photo: {{media url=photoDataUri}}`,
 });
@@ -64,6 +73,16 @@ const analyzeDocumentFlow = ai.defineFlow(
       try {
         const { output } = await prompt(input);
         if (!output) throw new Error('AI failed to analyze document');
+        
+        // Safety check for unrealistic bounding boxes
+        if (output.boundingBox) {
+          const { width, height } = output.boundingBox;
+          if (width < 50 || height < 50) {
+             console.warn('AI detected a suspicious document size, ignoring crop.');
+             delete output.boundingBox;
+          }
+        }
+
         return output;
       } catch (error: any) {
         lastError = error;
