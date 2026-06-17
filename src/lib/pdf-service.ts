@@ -1,12 +1,41 @@
-
 'use client';
 import { jsPDF } from 'jspdf';
+
+/**
+ * Crops a base64 image based on normalized coordinates (0-1000)
+ */
+export async function cropImage(
+  base64: string,
+  box: { x: number; y: number; width: number; height: number }
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject('No canvas context');
+
+      // Convert normalized to pixel coordinates
+      const sx = (box.x / 1000) * img.width;
+      const sy = (box.y / 1000) * img.height;
+      const sw = (box.width / 1000) * img.width;
+      const sh = (box.height / 1000) * img.height;
+
+      canvas.width = sw;
+      canvas.height = sh;
+
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      resolve(canvas.toDataURL('image/jpeg', 0.9));
+    };
+    img.onerror = reject;
+    img.src = base64;
+  });
+}
 
 /**
  * Generates an optimized PDF from front and back images.
  */
 export async function generateOptimizedPDF(frontBase64: string, backBase64: string): Promise<string> {
-  // Using jsPDF for client-side generation
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -19,7 +48,6 @@ export async function generateOptimizedPDF(frontBase64: string, backBase64: stri
   const availableWidth = pageWidth - margin * 2;
   const slotHeight = (pageHeight - margin * 3) / 2;
 
-  // Function to add image to PDF maintaining aspect ratio
   const addImageToDoc = async (base64: string, yPos: number) => {
     return new Promise<void>((resolve) => {
       const img = new Image();
@@ -41,10 +69,7 @@ export async function generateOptimizedPDF(frontBase64: string, backBase64: stri
     });
   };
 
-  // Add Front
   await addImageToDoc(frontBase64, margin);
-  
-  // Add Back
   await addImageToDoc(backBase64, margin * 2 + slotHeight);
 
   return doc.output('datauristring');
