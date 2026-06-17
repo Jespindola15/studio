@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview Flow to detect side and bounding box of a document for auto-cropping.
+ * Includes retry logic to handle transient 503 Service Unavailable errors.
  */
 
 import { ai } from '@/ai/genkit';
@@ -56,8 +57,27 @@ const analyzeDocumentFlow = ai.defineFlow(
     outputSchema: AnalyzeDocumentOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) throw new Error('AI failed to analyze document');
-    return output;
+    const MAX_RETRIES = 3;
+    let lastError;
+
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      try {
+        const { output } = await prompt(input);
+        if (!output) throw new Error('AI failed to analyze document');
+        return output;
+      } catch (error: any) {
+        lastError = error;
+        const isTransient = error?.message?.includes('503') || error?.message?.includes('429') || error?.message?.includes('UNAVAILABLE');
+        
+        if (isTransient && i < MAX_RETRIES - 1) {
+          const delay = 1500 * (i + 1);
+          console.warn(`AI model busy (503/429). Retry attempt ${i + 1}/${MAX_RETRIES} in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw lastError || new Error('AI analysis failed after multiple retries.');
   }
 );
