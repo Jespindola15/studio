@@ -205,7 +205,7 @@ export function DocumentProcessor() {
       
       <div className="text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
-           Escaneo Rápido de Documentos
+           Espindola Developer
         </div>
         <h1 className="text-5xl font-black tracking-tight text-slate-900 md:text-6xl">DocScanner</h1>
         <p className="text-slate-500 text-lg md:text-xl font-medium max-w-xl mx-auto leading-relaxed">
