@@ -108,7 +108,6 @@ export function DocumentProcessor() {
       link.click();
       toast({ title: '¡Listo!', description: 'Tu PDF optimizado se ha descargado.' });
       
-      // Auto-reset state for next job
       setFront(null);
       setBack(null);
     } catch (error) {
