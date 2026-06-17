@@ -42,7 +42,7 @@ export function DocumentProcessor() {
       status: 'analyzing'
     };
 
-    // Sequential placement
+    // Sequential placement logic
     if (!front) setFront(newDoc);
     else if (!back) setBack(newDoc);
     else {
@@ -87,7 +87,7 @@ export function DocumentProcessor() {
       }
     } catch (error) {
       console.error('AI Error:', error);
-      const readyDoc: DocFile = { ...newDoc, status: 'ready' };
+      const readyDoc: DocFile = { ...newDoc, preview: base64, status: 'ready' };
       if (front?.id === id) setFront(readyDoc);
       else if (back?.id === id) setBack(readyDoc);
     }
@@ -117,6 +117,10 @@ export function DocumentProcessor() {
       link.download = `documento_optimizado_${Date.now()}.pdf`;
       link.click();
       toast({ title: 'PDF Generado', description: 'El documento se ha descargado.' });
+      
+      // Reset the application state after successful download
+      setFront(null);
+      setBack(null);
     } catch (error) {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo generar el PDF.' });
     } finally {
